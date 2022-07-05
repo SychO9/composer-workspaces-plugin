@@ -92,4 +92,14 @@ class Workspace
         return "$this->path/composer.json";
     }
 
+    public function getVendorDirectory(): string
+    {
+        return "$this->path/vendor";
+    }
+
+    public function deleteVendorDirectory()
+    {
+        $this->filesystem->remove($this->getVendorDirectory());
+    }
+
 }

@@ -5,13 +5,15 @@ namespace ComposerWorkspacesPlugin;
 
 
 use Composer\Composer;
+use Composer\EventDispatcher\EventSubscriberInterface;
 use Composer\IO\IOInterface;
 use Composer\Plugin\Capable;
 use Composer\Plugin\PluginInterface;
+use Composer\Script\Event;
 use ComposerWorkspacesPlugin\Commands\CommandProvider;
 use RuntimeException;
 
-class Plugin implements PluginInterface, Capable
+class Plugin implements PluginInterface, Capable, EventSubscriberInterface
 {
     const VERSION = '2.0.0';
 
@@ -142,4 +144,34 @@ class Plugin implements PluginInterface, Capable
      */
     public function uninstall(Composer $composer, IOInterface $io) {}
 
+    public static function getSubscribedEvents()
+    {
+        return [
+            'post-install-cmd' => 'symlinkWorkspaceVendors',
+            'post-update-cmd' => 'symlinkWorkspaceVendors'
+        ];
+    }
+
+    /**
+     * Symlinks key vendor files from the workspace to the vendor directory.
+     */
+    public function symlinkWorkspaceVendors(Event $event)
+    {
+        if (! $this->isWorkspaceRoot()) {
+            return;
+        }
+
+        $this->io->write('Symlinking vendor for workspaces..');
+
+        $root = $this->getWorkspaceRoot();
+        $rootVendor = $root->getVendorDirectory();
+
+        foreach ($root->getWorkspaces() as $workspace) {
+            $vendor = $workspace->getVendorDirectory();
+
+            $workspace->deleteVendorDirectory();
+
+            symlink("$rootVendor", "$vendor");
+        }
+    }
 }

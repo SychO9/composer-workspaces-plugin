@@ -126,4 +126,9 @@ class WorkspaceRoot
         return null;
     }
 
+    public function getVendorDirectory(): string
+    {
+        return "$this->path/vendor";
+    }
+
 }

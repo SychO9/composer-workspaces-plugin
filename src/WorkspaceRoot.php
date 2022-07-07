@@ -4,10 +4,12 @@
 namespace ComposerWorkspacesPlugin;
 
 use Composer\IO\IOInterface;
+use Composer\Json\JsonFile;
 use Exception;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
+use Symplify\ComposerJsonManipulator\ValueObject\ComposerJson;
 
 class WorkspaceRoot
 {
@@ -126,9 +128,31 @@ class WorkspaceRoot
         return null;
     }
 
+    public function getComposerFilePath(): string
+    {
+        return "$this->path/composer.json";
+    }
+
+    public function getComposerJson(): JsonFile
+    {
+        return new JsonFile($this->getComposerFilePath());
+    }
+
     public function getVendorDirectory(): string
     {
         return "$this->path/vendor";
     }
 
+    public function writeComposerJson(array $finalComposer): void
+    {
+        file_put_contents(
+            $this->getComposerFilePath(),
+            json_encode($finalComposer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+        );
+    }
+
+    public function getPath(): string
+    {
+        return $this->path;
+    }
 }

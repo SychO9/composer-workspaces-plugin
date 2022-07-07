@@ -92,6 +92,11 @@ class Workspace
         return "$this->path/composer.json";
     }
 
+    public function getComposerJson(): array
+    {
+        return json_decode(file_get_contents($this->getComposerFilePath()), true);
+    }
+
     public function getVendorDirectory(): string
     {
         return "$this->path/vendor";
